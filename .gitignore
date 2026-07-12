@@ -1,1 +1,8 @@
-dist/
+node_modules/
+__pycache__/
+*.py[cod]
+*.luac
+.DS_Store
+.vscode/
+.idea/
+*.log

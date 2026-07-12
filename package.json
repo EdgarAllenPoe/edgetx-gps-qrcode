@@ -1,0 +1,21 @@
+{
+  "name": "edgetx-gps-qrcode",
+  "version": "10.10.7",
+  "private": true,
+  "description": "Universal EdgeTX GPS telemetry QR-code widget and telemetry script",
+  "license": "BSD-3-Clause",
+  "scripts": {
+    "build": "node tools/build.js",
+    "package": "python3 tools/package_release.py",
+    "verify": "python3 tools/verify_repository.py",
+    "test": "python3 tests/test_universal.py",
+    "release": "npm run build && npm run test && npm run verify && npm run package"
+  },
+  "devDependencies": {
+    "luamin": "1.0.4",
+    "luaparse": "0.3.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
