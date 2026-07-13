@@ -1,70 +1,121 @@
-# EdgeTX GPS QR Code lua script
+# EdgeTX GPS QR Code
 
-Have you lost your GPS-enabled quad in the field, but typing the GPS coordinates into your phone is too much work? This script will generate a QR code that you can scan with your phone and open it in your favorite map app.
+Universal EdgeTX scripts that turn the active model's last valid GPS telemetry position into a scannable `geo:` QR code.
 
+A single SD-card package supports:
 
-<img src="docs/camera-screenshot.jpg" height="600" alt="Screenshot of the camera app scanning the QR code by this script">
+- **Color radios** through `/WIDGETS/GPSQR/main.lua`.
+- **Black-and-white and grayscale radios** through `/SCRIPTS/TELEMETRY/GPSQR.lua`.
+- Renamed or multiple GPS sensors through `UNIT_GPS` discovery.
+- Landscape, portrait, compact, touch, and key-only color layouts.
+- Cooperative QR generation on monochrome radios.
 
-Note: On this screenshot the camera app has shortened the coordinates, but after tapping it Google Maps uses the full 6 digits (11cm accuracy) of the latitude and longitude.
+The color widget has been physically validated on a **RadioMaster TX16S**. One-bit, grayscale, portrait, wide-color, renamed-sensor, and polarity cases are covered by host-side tests; representative hardware validation is still encouraged for other radios.
 
-The QR code is updated every 15 seconds while the script is active.
+## Quick installation
 
-## Compatibility
+Use the prebuilt archive in `dist/`:
 
-This script should be compatible with monochrome EdgeTX radios, that support telemetry scripts. I have only tested it on the Jumper T14 (128x64 OLED screen, EdgeTX v2.10.0), so your mileage may vary.
+```text
+dist/GPSQR-v10.10.7-SD-minified.zip
+```
 
-> [!CAUTION]
-> Generating a QR code with a Lua script is taxing on the MCU. Please do not have this telemetry screen open while in flight, as it may cause the radio to lag or crash.
->
-> The script saves the last position in the background, so you can open it only when you are looking for your quad.
+Extract it directly to the root of the radio SD card. The result must contain:
 
-## Installation
+```text
+/WIDGETS/GPSQR/main.lua
+/SCRIPTS/TELEMETRY/GPSQR.lua
+```
 
-> [!NOTE]
-> Please do not use `gps_qr.src.lua` from this repo directly, it requires minification. 
+Delete stale compiled files if present:
 
-Go to the [Releases tab](https://github.com/alufers/edgetx-gps-qrcode/releases) and download one of the following files:
+```text
+/WIDGETS/GPSQR/main.luac
+/SCRIPTS/TELEMETRY/GPSQR.luac
+```
 
-| File  | Description |
-| ----  | ----------- |
-| `GPSqr.lua` | Non-inverted version, use for LCD based monochrome radios |
-| `GPSqrI.lua`| Color inverted version, use for OLED based monochrome radios |
+Restart the radio completely.
 
-Then, copy the file to the `SCRIPTS/TELEMETRY` folder on your SD card.
+- On a color radio, add **GPS QR** to a Main View.
+- On a monochrome or grayscale radio, assign `GPSQR` to a telemetry screen.
 
-## Usage
+See [Installation](docs/INSTALLATION.md) for complete instructions.
 
-1. Make sure your model supports telemetry, and has a GPS receiver.
-2. Make sure the GPS sensor is discovered by EdgeTX (Telemetry tab of the model settings). [See the EdgeTX user manual for more information](https://manual.edgetx.org/bw-radios/model-select/telemetry)
-3. Add this script as a screen ![Screenshot of the screens settings](docs/screens-setup.png)
-4. When you need to find your model, activate the telemetry screen and scan the QR code with your phone.
-6. Go to the pin!
+## GPS preparation
 
-## Hacking
+The active model must have a configured telemetry sensor whose unit is **GPS Coordinates**. Use **Discover New** in the model Telemetry page while the receiver, flight controller, and GPS telemetry link are active.
 
-If you want to modify the script:
+The sensor does not have to be named `GPS`; the scripts enumerate configured sensors and identify coordinates by `UNIT_GPS`.
 
-1. Install [luamin](https://github.com/mathiasbynens/luamin) and GNU make. (Alternatively you can manually use the [online version](https://mothereff.in/lua-minifier) of luamin)
-2. Edit `gps_qr.src.lua`
-3. Run `make` to minify the script
-4. The minified script will be placed in the `dist/` folder (and the inverted version)
+## Repository layout
 
-## Todo
+```text
+src/
+  color/main.lua                 Fully documented color widget
+  monochrome/GPSQR.lua           Fully documented B&W/grayscale telemetry script
 
-While the script is functional, some improvements could be made:
+dist/
+  readable/                      Exact SD layout using documented source
+  minified/                      Exact SD layout optimized for radios
+  GPSQR-...-SD-readable.zip      Readable installation archive
+  GPSQR-...-SD-minified.zip      Recommended installation archive
+tests/                           Lua harnesses and independent QR decode tests
+tools/                           Build, packaging, and repository checks
+docs/                            User, architecture, compatibility, and maintainer docs
+```
 
-- Code-golf the QR code generation further to make it faster & consume less memory
-    - Idea: Generate the mask variants asynchronously to distribute the load and allow the GC to cleanup
-- Color radio support (I don't have one, so somebody else has to do it)
-- Rewrite the QR code generation to C++ and contribute it to EdgeTX
-    - QR code generation consists mainly of bitwise operations, which LUA sucks at - strings of 0s and 1s are used to manipulate the data, which is hopelessly inefficient
-    - The error correction relies heavily on lookup tables, which in C++ could be stored in the flash memory and not in RAM like in LUA
-    - This could probably be useful for other scripts as well - imagine ExpressLRS showing you one to join it's Wi-Fi network.
+## Build and test
 
-## Acknowledgements
+```bash
+npm ci
+python3 -m pip install -r requirements-dev.txt
+npm run build
+npm test
+npm run verify
+npm run package
+```
 
-This script is based on the [luaqrcode](https://github.com/speedata/luaqrcode) library licensed under the BSD 3-Clause License. See the top of [gps_qr.src.lua](gps_qr.src.lua) for the modifications that were done.
+Or run the complete release pipeline:
+
+```bash
+make release
+```
+
+See [Development](docs/DEVELOPMENT.md) and [Testing](docs/TESTING.md).
+
+## Runtime architecture
+
+```mermaid
+flowchart LR
+    GPS[Configured UNIT_GPS sensor] --> Select[Live-source selection]
+    Select --> Fix[Last valid fix in microdegrees]
+    Fix --> Payload[geo:lat,lon]
+    Payload --> Color[Native LVGL QR on color radios]
+    Payload --> Mono[Cooperative Version 2-L encoder on B&W/GS radios]
+```
+
+The two entry points intentionally share behavior but not runtime code loading. The color widget is self-contained to avoid widget-discovery and cross-directory loader failures. The monochrome script is self-contained because those radios use telemetry scripts rather than widgets.
+
+## Safety
+
+Generating a QR code in Lua is CPU-intensive on lower-power radios. The monochrome implementation splits work across background callbacks and keeps the previous completed QR visible, but radio and firmware performance still vary. Do not leave the QR telemetry screen open during flight until it has been validated on the specific transmitter.
+
+The displayed location is sensitive information. Screenshots and photos of the QR code disclose the encoded coordinates.
+
+## Documentation
+
+- [Installation](docs/INSTALLATION.md)
+- [User guide](docs/USER_GUIDE.md)
+- [Compatibility](docs/COMPATIBILITY.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Sensor discovery](docs/SENSOR_DISCOVERY.md)
+- [Development](docs/DEVELOPMENT.md)
+- [Testing](docs/TESTING.md)
+- [Release process](docs/RELEASE_PROCESS.md)
+- [GitHub setup](docs/GITHUB_SETUP.md)
+- [Changelog](CHANGELOG.md)
 
 ## License
 
-[BSD 3-Clause License](LICENSE.md)
+BSD 3-Clause. See [`LICENSE`](LICENSE) and [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).

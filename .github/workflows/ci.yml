@@ -1,0 +1,63 @@
+name: verify
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install texlua
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes texlive-luatex
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Install Python dependencies
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Build readable and minified distributions
+        run: npm run build
+
+      - name: Run host and QR decode tests
+        run: npm test
+
+      - name: Verify repository invariants
+        run: npm run verify
+
+      - name: Build release archives
+        run: npm run package
+
+      - name: Require committed distributions to be current
+        run: git diff --exit-code -- dist
+
+      - name: Upload release candidates
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpsqr-release-candidates
+          path: |
+            dist/GPSQR-v*-SD-*.zip
+            dist/SHA256SUMS
+          if-no-files-found: error
