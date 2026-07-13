@@ -10,9 +10,28 @@ npm run build
 python3 -m pip install -r requirements-dev.txt
 npm test
 npm run verify
+npm run package
 ```
 
 The Python suite executes Lua through `texlua` and parses every source with `luaparse`.
+
+A complete local release check is:
+
+```bash
+make release
+```
+
+## GitHub Actions
+
+The workflow in `.github/workflows/ci.yml` runs the same build, test, verification, and packaging stages on pushes and pull requests.
+
+The CI environment depends on:
+
+- `package-lock.json` containing public `registry.npmjs.org` URLs.
+- `requirements-dev.txt` being supplied to `actions/setup-python` through `cache-dependency-path`.
+- `texlua` being installed through the Ubuntu `texlive-luatex` package.
+
+A green `verify` workflow means all repository host tests, QR-decode tests, generated-file checks, and release-package checks completed successfully. It does not replace physical-radio validation.
 
 ## Color harness
 
@@ -48,6 +67,14 @@ OpenCV independently decodes the rendered PGM. This verifies the complete chain 
 - Readable dist files exactly match source.
 - Minified files are smaller than source.
 
+The CI workflow additionally runs:
+
+```bash
+git diff --exit-code -- dist
+```
+
+This ensures the committed readable files, minified files, ZIP archives, and checksums match a fresh build.
+
 ## Physical-radio matrix
 
 Before describing a radio as physically supported, record:
@@ -75,7 +102,7 @@ For monochrome radios, also test:
 
 ## Test limitations
 
-Host tests cannot reproduce:
+Host tests and GitHub Actions cannot reproduce:
 
 - Real transmitter instruction scheduling.
 - Lua heap fragmentation over long sessions.
