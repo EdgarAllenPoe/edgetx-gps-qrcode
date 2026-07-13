@@ -2,10 +2,13 @@
 
 ## Choose a package
 
-Two ready-to-copy archives are generated in `dist/`:
+For normal installation, download one of the assets from the [latest GitHub Release](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/releases/latest):
 
 - `GPSQR-v10.10.7-SD-minified.zip` — recommended for normal radio use.
 - `GPSQR-v10.10.7-SD-readable.zip` — functionally equivalent, with full inline documentation for inspection and modification.
+- `SHA256SUMS` — checksums for verifying the downloaded archives.
+
+A repository checkout also contains the same generated archives under `dist/`.
 
 The minified scripts reduce SD-card reads, Lua parsing work, and temporary heap use. Keep the readable archive on a computer for development and troubleshooting.
 
@@ -73,12 +76,23 @@ These radios use the telemetry-script path:
 
 The telemetry screen should be used as a recovery aid rather than left open throughout a flight until CPU behavior has been validated on that radio.
 
+## Verify a download
+
+From PowerShell, run:
+
+```powershell
+Get-FileHash .\GPSQR-v10.10.7-SD-minified.zip -Algorithm SHA256
+```
+
+Compare the result with the matching entry in `SHA256SUMS` from the same GitHub Release.
+
 ## Upgrade
 
-1. Replace both `.lua` files with the new release.
-2. Delete any matching `.luac` cache files.
-3. Restart the radio.
-4. On a color radio, remove and re-add the widget if EdgeTX retained an old instance state.
+1. Download the new release archive.
+2. Replace both `.lua` files with the new release.
+3. Delete any matching `.luac` cache files.
+4. Restart the radio.
+5. On a color radio, remove and re-add the widget if EdgeTX retained an old instance state.
 
 ## Uninstall
 
