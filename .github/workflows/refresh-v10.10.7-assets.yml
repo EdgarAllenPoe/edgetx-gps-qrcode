@@ -1,0 +1,67 @@
+name: refresh-v10.10.7-assets
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/refresh-v10.10.7-assets.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Rebuild distributions and release archives
+        run: |
+          npm run build
+          python tools/package_release.py
+
+      - name: Commit refreshed release archives
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            dist/GPSQR-v10.10.7-SD-minified.zip \
+            dist/GPSQR-v10.10.7-SD-readable.zip \
+            dist/SHA256SUMS
+          if git diff --cached --quiet; then
+            echo "Release archives are already current."
+          else
+            git commit -m "Refresh release archives after documentation update"
+            git push origin HEAD:master
+          fi
+
+      - name: Replace GitHub Release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload v10.10.7 \
+            dist/GPSQR-v10.10.7-SD-minified.zip \
+            dist/GPSQR-v10.10.7-SD-readable.zip \
+            dist/SHA256SUMS \
+            --clobber
