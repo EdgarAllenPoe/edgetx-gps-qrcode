@@ -2,6 +2,20 @@
 
 All notable project changes are documented here. Runtime source comments describe current behavior only; release history belongs in this file and the release notes under `docs/releases/`.
 
+## Unreleased
+
+### Changed
+
+- Corrected GitHub Actions Python dependency caching by identifying `requirements-dev.txt` explicitly.
+- Regenerated `package-lock.json` with public `registry.npmjs.org` package URLs.
+- Added automated publication of the v10.10.7 GitHub Release and its installable assets.
+- Added CI and latest-release badges to the README.
+- Updated installation, release, and GitHub-maintenance documentation for the fork's `master` branch.
+
+### Verified
+
+- Confirmed the complete GitHub Actions build, test, verification, packaging, and generated-file checks pass.
+
 ## [10.10.7] - 2026-07-12
 
 ### Added
