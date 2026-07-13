@@ -3,6 +3,9 @@
 [![verify](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/v/release/EdgarAllenPoe/edgetx-gps-qrcode)](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/releases/latest)
 
+
+This application was 100% vibe-coded using chat GPT 5.5 Pro. there has been no manual review of the code.
+
 Universal EdgeTX scripts that turn the active model's last valid GPS telemetry position into a scannable `geo:` QR code.
 
 A single SD-card package supports:
