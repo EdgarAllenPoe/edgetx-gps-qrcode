@@ -1,0 +1,98 @@
+name: Bug report
+about: Report a radio, telemetry, display, QR, or performance problem
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not upload unredacted coordinates or QR images that reveal a private location.
+
+  - type: input
+    id: version
+    attributes:
+      label: GPS QR version
+      placeholder: 10.10.7
+    validations:
+      required: true
+
+  - type: input
+    id: radio
+    attributes:
+      label: Radio model
+      placeholder: RadioMaster TX16S
+    validations:
+      required: true
+
+  - type: input
+    id: edgetx
+    attributes:
+      label: EdgeTX version
+      placeholder: 2.12.2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: display
+    attributes:
+      label: Display class
+      options:
+        - Color touch
+        - Color key-only
+        - One-bit monochrome
+        - Grayscale
+        - Unknown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Test environment
+      options:
+        - Physical radio
+        - EdgeTX Simulator
+        - Repository host harness
+    validations:
+      required: true
+
+  - type: input
+    id: gps
+    attributes:
+      label: GPS sensor label and telemetry protocol
+      placeholder: Position / CRSF
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem description
+      description: Include the exact on-screen message and what you expected.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Select model...
+        2. Open widget...
+        3. Observe...
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: SD-card paths and files
+      description: Confirm the installed paths and whether any .luac cache files existed.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission checks
+      options:
+        - label: I deleted stale main.luac/GPSQR.luac files and restarted the radio.
+        - label: I confirmed the active model has a configured UNIT_GPS telemetry sensor.
+        - label: I removed or redacted sensitive coordinates from public attachments.

@@ -1,14 +1,23 @@
+.PHONY: install build test verify package release clean
 
-all: normal_version inverted_version
-normal_version:
-	mkdir -p dist
-	(echo "-- Script for displaying GPS location of a model as a QR code. https://github.com/alufers/edgetx-gps-qrcode" && \
-		luamin -f gps_qr_src.lua) > dist/GPSqr.lua
+install:
+	npm ci
+	python3 -m pip install -r requirements-dev.txt
 
-TEMP_FILE := $(shell mktemp)
-inverted_version:
-	mkdir -p dist
-	cp gps_qr_src.lua $(TEMP_FILE)
-	sed -i 's/local INVERTED = false/local INVERTED = true/' $(TEMP_FILE)
-	(echo "-- Script for displaying GPS location of a model as a QR code (inverted display version). https://github.com/alufers/edgetx-gps-qrcode" && \
-		luamin -f $(TEMP_FILE)) > dist/GPSqrI.lua
+build:
+	npm run build
+
+test: build
+	npm test
+
+verify: build
+	npm run verify
+
+package: build
+	npm run package
+
+release: build test verify package
+
+clean:
+	rm -rf dist/readable dist/minified
+	rm -f dist/GPSQR-v*-SD-*.zip dist/SHA256SUMS
