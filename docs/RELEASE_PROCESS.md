@@ -18,6 +18,7 @@ Keep these values aligned:
 - Update compatibility and troubleshooting when behavior changes.
 - Document every new function inline without mentioning prior versions.
 - Record physical-radio validation separately from host validation.
+- Confirm README and installation instructions point users to the latest GitHub Release.
 
 ## 3. Build and verify
 
@@ -28,6 +29,8 @@ make release
 ```
 
 The command must complete without warnings or failed QR decodes.
+
+GitHub Actions also runs the `verify` workflow on pushes and pull requests. A release should not be published unless that workflow is green.
 
 ## 4. Review generated artifacts
 
@@ -62,19 +65,44 @@ At minimum:
 - Scan a QR with an independent phone application.
 - Confirm exact coordinates using non-sensitive test data.
 
-## 7. Tag and publish
+## 7. Commit and push
 
-Create an annotated tag:
+This fork uses `master` as its default branch.
+
+```bash
+git add -A
+git commit -m "Prepare GPS QR v<version>"
+git pull --rebase origin master
+git push origin master
+```
+
+Do not force-push over remote commits.
+
+## 8. Tag and publish
+
+Create and push an annotated tag after the release commit and green CI run:
 
 ```bash
 git tag -a v<version> -m "GPS QR v<version>"
-git push origin main --tags
+git push origin master --tags
 ```
 
-Create a GitHub Release from the tag and attach:
+Create a GitHub Release from that tag and attach:
 
 - `GPSQR-v<version>-SD-minified.zip`.
 - `GPSQR-v<version>-SD-readable.zip`.
 - `SHA256SUMS`.
 
 Use the corresponding file from `docs/releases/` as the release description.
+
+The v10.10.7 release was published through `.github/workflows/release-v10.10.7.yml`. For a later release, either update or replace that version-specific workflow, or create the release through GitHub after pushing the tag.
+
+## 9. Post-release verification
+
+Confirm that:
+
+- The release is marked as the latest stable release.
+- All three assets download successfully.
+- The README release badge resolves to the new version.
+- The minified ZIP installs directly to an SD-card root.
+- `master` and the release tag point to the intended release commit.
