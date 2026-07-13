@@ -1,0 +1,124 @@
+name: publish-wiki
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - README.md
+      - CHANGELOG.md
+      - docs/**
+      - .github/workflows/publish-wiki.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build wiki pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf wiki-out
+          mkdir wiki-out
+
+          cat > wiki-out/Home.md <<'EOF'
+          # EdgeTX GPS QR Code
+
+          GPS QR turns the active model's last valid GPS telemetry position into a scannable `geo:` QR code.
+
+          The same SD-card package supports:
+
+          - Color EdgeTX radios through the **GPS QR** widget.
+          - Black-and-white and grayscale radios through the `GPSQR` telemetry script.
+          - Renamed and multiple GPS sensors through `UNIT_GPS` discovery.
+          - Touch, key-only, landscape, portrait, wide, and compact color layouts.
+
+          ## Start here
+
+          - [[Installation]] — download and copy GPS QR to the radio.
+          - [[User Guide]] — understand refresh behavior, status messages, and scanning.
+          - [[Compatibility]] — supported display classes, firmware, and validation status.
+          - [[Troubleshooting]] — resolve installation, telemetry, and QR-scanning problems.
+          - [[GPS Sensor Discovery]] — understand how configured GPS sensors are located and selected.
+
+          ## Current release
+
+          The current release is **v10.10.7**. Download the minified SD-card ZIP from the repository's [latest release](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/releases/latest).
+
+          The readable ZIP contains the same functionality with full inline documentation for inspection and customization.
+
+          ## Confirmed validation
+
+          - Physical color-radio validation: **RadioMaster TX16S**.
+          - Host validation: one-bit, grayscale, portrait, wide-color, renamed-sensor, multiple-GPS, polarity, and independent QR decoding.
+          - Other radios should be validated on real hardware before relying on the QR screen during flight.
+
+          ## Safety and privacy
+
+          Generating a QR code can consume noticeable CPU time on lower-power radios. Open the QR screen only when needed until behavior has been validated on the specific transmitter.
+
+          A screenshot or photo of the QR code reveals the encoded coordinates. Redact location information before posting screenshots or logs publicly.
+          EOF
+
+          cp docs/INSTALLATION.md wiki-out/Installation.md
+          cp docs/USER_GUIDE.md wiki-out/User-Guide.md
+          cp docs/COMPATIBILITY.md wiki-out/Compatibility.md
+          cp docs/TROUBLESHOOTING.md wiki-out/Troubleshooting.md
+          cp docs/SENSOR_DISCOVERY.md wiki-out/GPS-Sensor-Discovery.md
+          cp docs/ARCHITECTURE.md wiki-out/Architecture.md
+          cp docs/DEVELOPMENT.md wiki-out/Development.md
+          cp docs/TESTING.md wiki-out/Testing.md
+          cp docs/RELEASE_PROCESS.md wiki-out/Release-Process.md
+          cp CHANGELOG.md wiki-out/Changelog.md
+
+          cat > wiki-out/_Sidebar.md <<'EOF'
+          **GPS QR Wiki**
+
+          - [[Home]]
+          - [[Installation]]
+          - [[User Guide]]
+          - [[Compatibility]]
+          - [[Troubleshooting]]
+          - [[GPS Sensor Discovery]]
+
+          **Technical documentation**
+
+          - [[Architecture]]
+          - [[Development]]
+          - [[Testing]]
+          - [[Release Process]]
+          - [[Changelog]]
+
+          **Project links**
+
+          - [Repository](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode)
+          - [Latest release](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/releases/latest)
+          - [Report an issue](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/issues/new/choose)
+          EOF
+
+          cat > wiki-out/_Footer.md <<'EOF'
+          [Repository](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode) · [Latest release](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/releases/latest) · [Issues](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/issues)
+          EOF
+
+      - name: Publish wiki
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd wiki-out
+          git init --initial-branch=master
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Synchronize wiki from repository documentation"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git"
+          git push --force origin master
