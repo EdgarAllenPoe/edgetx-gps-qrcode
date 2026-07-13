@@ -112,3 +112,14 @@ jobs:
         uses: actions4gh/deploy-wiki@v1
         with:
           path: wiki-out
+
+      - name: Record successful publication
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'Wiki published successfully from %s\n' "$GITHUB_SHA" > .github/wiki-publish-status.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/wiki-publish-status.txt
+          git commit -m "Record successful wiki publication" || exit 0
+          git push origin HEAD:master
