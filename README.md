@@ -1,5 +1,8 @@
 # EdgeTX GPS QR Code
 
+[![verify](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/EdgarAllenPoe/edgetx-gps-qrcode)](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/releases/latest)
+
 Universal EdgeTX scripts that turn the active model's last valid GPS telemetry position into a scannable `geo:` QR code.
 
 A single SD-card package supports:
@@ -14,13 +17,22 @@ The color widget has been physically validated on a **RadioMaster TX16S**. One-b
 
 ## Quick installation
 
-Use the prebuilt archive in `dist/`:
+Download the recommended archive from the [latest GitHub Release](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/releases/latest):
 
 ```text
-dist/GPSQR-v10.10.7-SD-minified.zip
+GPSQR-v10.10.7-SD-minified.zip
 ```
 
-Extract it directly to the root of the radio SD card. The result must contain:
+The release also includes:
+
+```text
+GPSQR-v10.10.7-SD-readable.zip
+SHA256SUMS
+```
+
+The minified archive is recommended for normal radio use. The readable archive contains the same functionality with full inline documentation for inspection and customization.
+
+Extract the chosen archive directly to the root of the radio SD card. The result must contain:
 
 ```text
 /WIDGETS/GPSQR/main.lua
@@ -38,6 +50,8 @@ Restart the radio completely.
 
 - On a color radio, add **GPS QR** to a Main View.
 - On a monochrome or grayscale radio, assign `GPSQR` to a telemetry screen.
+
+A repository checkout also contains the same prebuilt archives under `dist/`.
 
 See [Installation](docs/INSTALLATION.md) for complete instructions.
 
@@ -82,6 +96,12 @@ make release
 ```
 
 See [Development](docs/DEVELOPMENT.md) and [Testing](docs/TESTING.md).
+
+## Continuous integration and releases
+
+The `verify` GitHub Actions workflow runs on pushes and pull requests. It installs the public npm and Python dependencies, builds both distributions, runs the host and QR-decode tests, checks repository invariants, rebuilds the release archives, and verifies that committed files under `dist/` are current.
+
+Versioned GitHub Releases provide the minified and readable SD-card archives plus `SHA256SUMS`. The repository currently uses `master` as its default branch because it is maintained as a fork of the original project.
 
 ## Runtime architecture
 
