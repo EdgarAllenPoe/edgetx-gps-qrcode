@@ -22,4 +22,14 @@ jobs:
       - name: Publish v10.10.7 release
         uses: softprops/action-gh-release@v2
         with:
-          tag
+          tag_name: v10.10.7
+          target_commitish: master
+          name: GPS QR v10.10.7
+          body_path: docs/releases/v10.10.7.md
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
+          files: |
+            dist/GPSQR-v10.10.7-SD-minified.zip
+            dist/GPSQR-v10.10.7-SD-readable.zip
+            dist/SHA256SUMS
