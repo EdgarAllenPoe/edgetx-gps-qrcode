@@ -1,5 +1,5 @@
 --[[
-EdgeTX GPS QR Code — v10.10.7 monochrome telemetry edition
+EdgeTX GPS QR Code — v10.10.8 monochrome telemetry edition
 
 Displays the last valid GPS telemetry position as a QR code containing a geo URI.
 The source is intentionally readable and should be minified before radio deployment.
@@ -53,7 +53,7 @@ uses the generated minified file in dist/minified/SCRIPTS/TELEMETRY/GPSQR.lua.
 
 -- Runtime policy constants. All time intervals use EdgeTX 10 ms ticks. The
 -- polarity override accepts "automatic", "normal", or "inverted".
-local SCRIPT_VERSION = "10.10.7"
+local SCRIPT_VERSION = "10.10.8"
 local POLARITY_OVERRIDE = "automatic"
 local QUIET_ZONE_MODULES = 3
 local AUTO_REFRESH = false
@@ -1363,7 +1363,7 @@ slot is cleared only after its values have been copied into the new job.
 local function startPendingJob()
     if not requestPending or qrJob then return end
     requestPending = false
-    local payload = "geo:" .. requestedLatitudeText .. "," .. requestedLongitudeText
+    local payload = "geo:0,0?q=" .. requestedLatitudeText .. "," .. requestedLongitudeText
     qrJob = createQrJob(
         payload,
         requestedLatitudeE6,

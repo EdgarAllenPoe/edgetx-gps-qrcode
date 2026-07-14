@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "10.10.7"
+VERSION = "10.10.8"
 
 SOURCE_FILES = [
     ROOT / "src" / "color" / "main.lua",

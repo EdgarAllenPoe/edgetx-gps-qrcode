@@ -4,6 +4,14 @@ All notable project changes are documented here. Runtime source comments describ
 
 ## Unreleased
 
+## [10.10.8] - 2026-07-14
+
+### Changed
+
+- Changed both QR payload builders to `geo:0,0?q=<latitude>,<longitude>` so compatible map applications, including Google Maps, place a marker at the scanned position.
+- Added host verification for the marker-compatible payload, including the 32-byte geographic-extrema case.
+
+
 ### Changed
 
 - Corrected GitHub Actions Python dependency caching by identifying `requirements-dev.txt` explicitly.
@@ -36,4 +44,5 @@ All notable project changes are documented here. Runtime source comments describ
 - Host-rendered 128×64 one-bit and 212×64 grayscale output.
 - Host-simulated 480×272, 320×480, and 800×480 color layouts.
 
+[10.10.8]: docs/releases/v10.10.8.md
 [10.10.7]: docs/releases/v10.10.7.md

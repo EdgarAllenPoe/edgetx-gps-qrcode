@@ -1,6 +1,6 @@
 {
   "name": "edgetx-gps-qrcode",
-  "version": "10.10.7",
+  "version": "10.10.8",
   "private": true,
   "description": "Universal EdgeTX GPS telemetry QR-code widget and telemetry script",
   "license": "BSD-3-Clause",

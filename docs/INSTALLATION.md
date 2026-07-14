@@ -4,8 +4,8 @@
 
 For normal installation, download one of the assets from the [latest GitHub Release](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/releases/latest):
 
-- `GPSQR-v10.10.7-SD-minified.zip` — recommended for normal radio use.
-- `GPSQR-v10.10.7-SD-readable.zip` — functionally equivalent, with full inline documentation for inspection and modification.
+- `GPSQR-v10.10.8-SD-minified.zip` — recommended for normal radio use.
+- `GPSQR-v10.10.8-SD-readable.zip` — functionally equivalent, with full inline documentation for inspection and modification.
 - `SHA256SUMS` — checksums for verifying the downloaded archives.
 
 A repository checkout also contains the same generated archives under `dist/`.
@@ -81,7 +81,7 @@ The telemetry screen should be used as a recovery aid rather than left open thro
 From PowerShell, run:
 
 ```powershell
-Get-FileHash .\GPSQR-v10.10.7-SD-minified.zip -Algorithm SHA256
+Get-FileHash .\GPSQR-v10.10.8-SD-minified.zip -Algorithm SHA256
 ```
 
 Compare the result with the matching entry in `SHA256SUMS` from the same GitHub Release.

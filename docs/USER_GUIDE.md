@@ -5,7 +5,7 @@
 GPS QR encodes a standard geographic URI:
 
 ```text
-geo:<latitude>,<longitude>
+geo:0,0?q=<latitude>,<longitude>
 ```
 
 Coordinates are formatted to six decimal places. The display text and QR payload are committed together, so the visible numbers describe the location encoded in the active QR.

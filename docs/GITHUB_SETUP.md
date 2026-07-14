@@ -69,7 +69,7 @@ Create a GitHub Release for each version tag and attach:
 - `GPSQR-v<version>-SD-readable.zip` — documented package for auditing and customization.
 - `SHA256SUMS` — release integrity checks.
 
-The v10.10.7 release is published by `.github/workflows/release-v10.10.7.yml`. That workflow has `contents: write` permission and creates the tag and release assets from the committed files under `dist/`.
+The v10.10.8 release is published by `.github/workflows/release-v10.10.8.yml`. That workflow has `contents: write` permission and creates the tag and release assets from the committed files under `dist/`.
 
 Future releases should replace or generalize the version-specific workflow rather than leaving multiple active one-time workflows.
 

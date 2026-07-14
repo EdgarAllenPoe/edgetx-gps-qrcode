@@ -114,10 +114,10 @@ for index = 1, #lastSpec do
   end
 end
 
-assert(title == "GPS QR 10.10.7", "wrong color version title")
+assert(title == "GPS QR 10.10.8", "wrong color version title")
 if expectQr then
   assert(qr ~= nil, "native QR object was not requested")
-  assert(qr.data == "geo:40.712800,-74.006000", "wrong color QR payload")
+  assert(qr.data == "geo:0,0?q=40.712800,-74.006000", "wrong color QR payload")
   assert(qr.w == qr.h and qr.w > 0, "QR dimensions are invalid")
   print(string.format(
     "color_payload=%s title=%s size=%d screen=%dx%d",

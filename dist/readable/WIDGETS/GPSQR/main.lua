@@ -29,7 +29,7 @@
 -- EdgeTX time values are measured in 10 ms ticks, so multiplying seconds by 100
 -- produces the callback intervals used below.
 local APP_NAME = "GPS QR"
-local APP_VERSION = "10.10.7"
+local APP_VERSION = "10.10.8"
 local QR_REFRESH_TICKS = 15 * 100
 local GPS_RETRY_TICKS = 2 * 100
 local MIN_QR_PIXELS = 104
@@ -498,7 +498,7 @@ local function readGps(widget)
     widget.longitudeE6 = longitudeE6
     widget.latitudeText = formatCoordinate(latitudeE6)
     widget.longitudeText = formatCoordinate(longitudeE6)
-    widget.payload = "geo:" .. widget.latitudeText .. "," .. widget.longitudeText
+    widget.payload = "geo:0,0?q=" .. widget.latitudeText .. "," .. widget.longitudeText
     widget.qrPending = true
   end
 

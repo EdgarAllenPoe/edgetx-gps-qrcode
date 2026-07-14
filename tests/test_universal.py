@@ -26,9 +26,9 @@ COLOR_HARNESS = ROOT / "tests" / "color_harness.lua"
 MONO_HARNESS = ROOT / "tests" / "mono_harness.lua"
 
 CASES = [
-    (40.7128, -74.006, "geo:40.712800,-74.006000"),
-    (-90.0, -180.0, "geo:-90.000000,-180.000000"),
-    (51.507351, -0.127758, "geo:51.507351,-0.127758"),
+    (40.7128, -74.006, "geo:0,0?q=40.712800,-74.006000"),
+    (-90.0, -180.0, "geo:0,0?q=-90.000000,-180.000000"),
+    (51.507351, -0.127758, "geo:0,0?q=51.507351,-0.127758"),
 ]
 
 
@@ -156,7 +156,7 @@ def check_color_widget(script: Path, label: str) -> None:
         )
 
         if expect_qr:
-            expected = "color_payload=geo:40.712800,-74.006000"
+            expected = "color_payload=geo:0,0?q=40.712800,-74.006000"
             if expected not in result.stdout:
                 raise AssertionError(f"{label}/{width}x{height}: {result.stdout}")
         else:

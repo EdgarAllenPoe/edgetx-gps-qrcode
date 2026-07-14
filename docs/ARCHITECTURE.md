@@ -32,7 +32,7 @@ stateDiagram-v2
 Both store coordinates as integer microdegrees and construct:
 
 ```text
-geo:<latitude>,<longitude>
+geo:0,0?q=<latitude>,<longitude>
 ```
 
 ## Color widget

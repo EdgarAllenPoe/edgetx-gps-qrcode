@@ -48,7 +48,7 @@ Flight-controller and receiver configuration remains protocol-specific and is ou
 The monochrome encoder is specialized for QR Version 2-L and a maximum byte-mode payload of 32 bytes. Six-decimal `geo:` coordinates fit within that limit, including geographic extrema:
 
 ```text
-geo:-90.000000,-180.000000
+geo:0,0?q=-90.000000,-180.000000
 ```
 
 The color widget uses EdgeTX's native encoder and is not constrained by the embedded Version 2 specialization for its normal GPS payload.

@@ -23,13 +23,13 @@ The color widget has been physically validated on a **RadioMaster TX16S**. One-b
 Download the recommended archive from the [latest GitHub Release](https://github.com/EdgarAllenPoe/edgetx-gps-qrcode/releases/latest):
 
 ```text
-GPSQR-v10.10.7-SD-minified.zip
+GPSQR-v10.10.8-SD-minified.zip
 ```
 
 The release also includes:
 
 ```text
-GPSQR-v10.10.7-SD-readable.zip
+GPSQR-v10.10.8-SD-readable.zip
 SHA256SUMS
 ```
 

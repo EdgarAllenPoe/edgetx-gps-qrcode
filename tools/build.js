@@ -18,7 +18,7 @@ const path = require('path');
 const luamin = require('luamin');
 
 const repositoryRoot = path.resolve(__dirname, '..');
-const version = '10.10.7';
+const version = '10.10.8';
 
 const targets = [
   {

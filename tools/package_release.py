@@ -17,7 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
-VERSION = "10.10.7"
+VERSION = "10.10.8"
 FIXED_ZIP_TIME = (2024, 1, 1, 0, 0, 0)
 
 INSTALL_TEXT = f"""GPS QR v{VERSION} UNIVERSAL INSTALLATION
