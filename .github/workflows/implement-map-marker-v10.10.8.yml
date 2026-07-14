@@ -1,16 +1,10 @@
 name: implement-map-marker-v10.10.8
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - .github/workflows/implement-map-marker-v10.10.8.yml
   workflow_dispatch:
 
 permissions:
   contents: write
-  actions: write
 
 jobs:
   implement:
@@ -46,203 +40,7 @@ jobs:
           python -m pip install -r requirements-dev.txt
 
       - name: Update source, tests, versions, and documentation
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          ROOT = Path.cwd()
-          OLD_VERSION = "10.10.7"
-          NEW_VERSION = "10.10.8"
-          RELEASE_DATE = "2026-07-14"
-
-          def read(path: str) -> str:
-              return (ROOT / path).read_text(encoding="utf-8")
-
-          def write(path: str, text: str) -> None:
-              (ROOT / path).write_text(text, encoding="utf-8", newline="\n")
-
-          def replace_required(path: str, old: str, new: str, expected: int | None = None) -> None:
-              text = read(path)
-              count = text.count(old)
-              if count == 0:
-                  raise AssertionError(f"{path}: required text not found: {old!r}")
-              if expected is not None and count != expected:
-                  raise AssertionError(
-                      f"{path}: expected {expected} occurrence(s) of {old!r}, found {count}"
-                  )
-              write(path, text.replace(old, new))
-
-          write("VERSION", NEW_VERSION + "\n")
-          replace_required("package.json", f'"version": "{OLD_VERSION}"', f'"version": "{NEW_VERSION}"', 1)
-          replace_required("package-lock.json", f'"version": "{OLD_VERSION}"', f'"version": "{NEW_VERSION}"', 2)
-          replace_required("tools/build.js", f"const version = '{OLD_VERSION}';", f"const version = '{NEW_VERSION}';", 1)
-          replace_required("tools/package_release.py", f'VERSION = "{OLD_VERSION}"', f'VERSION = "{NEW_VERSION}"', 1)
-          replace_required("tools/verify_repository.py", f'VERSION = "{OLD_VERSION}"', f'VERSION = "{NEW_VERSION}"', 1)
-
-          # Color widget: retain six-decimal coordinates while using the Android geo
-          # query form that causes compatible mapping apps to place a location pin.
-          replace_required("src/color/main.lua", OLD_VERSION, NEW_VERSION)
-          replace_required(
-              "src/color/main.lua",
-              'widget.payload = "geo:" .. widget.latitudeText .. "," .. widget.longitudeText',
-              'widget.payload = "geo:0,0?q=" .. widget.latitudeText .. "," .. widget.longitudeText',
-              1,
-          )
-          replace_required(
-              "src/color/main.lua",
-              "formats the last valid position as a geo: URI",
-              "formats the last valid position as a marker-compatible geo: URI",
-              1,
-          )
-          replace_required(
-              "src/color/main.lua",
-              "assembled into the geo URI",
-              "assembled into the marker-compatible geo URI",
-              1,
-          )
-
-          # Monochrome/grayscale telemetry script: the maximum geographic-extrema
-          # payload is exactly 32 bytes, matching the fixed Version 2-L capacity.
-          replace_required("src/monochrome/GPSQR.lua", OLD_VERSION, NEW_VERSION)
-          replace_required(
-              "src/monochrome/GPSQR.lua",
-              'local payload = "geo:" .. requestedLatitudeText .. "," .. requestedLongitudeText',
-              'local payload = "geo:0,0?q=" .. requestedLatitudeText .. "," .. requestedLongitudeText',
-              1,
-          )
-          replace_required(
-              "src/monochrome/GPSQR.lua",
-              "containing a geo URI.",
-              "containing a marker-compatible geo URI.",
-              1,
-          )
-
-          # Exact expected payloads ensure both renderer families encode the pin form.
-          expected_payloads = {
-              "geo:40.712800,-74.006000": "geo:0,0?q=40.712800,-74.006000",
-              "geo:-90.000000,-180.000000": "geo:0,0?q=-90.000000,-180.000000",
-              "geo:51.507351,-0.127758": "geo:0,0?q=51.507351,-0.127758",
-          }
-          for old, new in expected_payloads.items():
-              replace_required("tests/test_universal.py", old, new)
-
-          # Current-version user and maintainer documentation.
-          for path in [
-              "README.md",
-              "docs/INSTALLATION.md",
-              "docs/GITHUB_SETUP.md",
-          ]:
-              replace_required(path, OLD_VERSION, NEW_VERSION)
-
-          replace_required(
-              "docs/USER_GUIDE.md",
-              "geo:<latitude>,<longitude>",
-              "geo:0,0?q=<latitude>,<longitude>",
-              1,
-          )
-          replace_required(
-              "docs/USER_GUIDE.md",
-              "Coordinates are formatted to six decimal places.",
-              "The neutral `0,0` base coordinate and the `q` parameter ask compatible map applications, including Google Maps, to place a pin at the supplied latitude and longitude. Coordinates are formatted to six decimal places.",
-              1,
-          )
-          replace_required(
-              "docs/ARCHITECTURE.md",
-              "geo:<latitude>,<longitude>",
-              "geo:0,0?q=<latitude>,<longitude>",
-              1,
-          )
-          replace_required(
-              "docs/COMPATIBILITY.md",
-              "The monochrome encoder is specialized for QR Version 2-L and a maximum byte-mode payload of 32 bytes. Six-decimal `geo:` coordinates fit within that limit, including geographic extrema:",
-              "The monochrome encoder is specialized for QR Version 2-L and a maximum byte-mode payload of 32 bytes. The marker-compatible six-decimal geo URI exactly fits that limit at geographic extrema:",
-              1,
-          )
-          replace_required(
-              "docs/COMPATIBILITY.md",
-              "geo:-90.000000,-180.000000",
-              "geo:0,0?q=-90.000000,-180.000000",
-              1,
-          )
-
-          changelog = read("CHANGELOG.md")
-          unreleased = "## Unreleased\n\n### Changed\n\n"
-          if unreleased not in changelog:
-              raise AssertionError("CHANGELOG.md: expected Unreleased section not found")
-          release_heading = f"""## Unreleased
-
-## [{NEW_VERSION}] - {RELEASE_DATE}
-
-### Changed
-
-- Changed both QR payload builders to `geo:0,0?q=<latitude>,<longitude>` so compatible map applications, including Google Maps, place a marker at the scanned position.
-- Added exact host verification of the marker-compatible payload on color, one-bit, and grayscale paths, including the 32-byte geographic-extrema case.
-"""
-          changelog = changelog.replace(unreleased, release_heading, 1)
-          old_link = f"[{OLD_VERSION}]: docs/releases/v{OLD_VERSION}.md"
-          if old_link not in changelog:
-              raise AssertionError("CHANGELOG.md: existing release link not found")
-          changelog = changelog.replace(
-              old_link,
-              f"[{NEW_VERSION}]: docs/releases/v{NEW_VERSION}.md\n{old_link}",
-              1,
-          )
-          write("CHANGELOG.md", changelog)
-
-          release_note = f"""# GPS QR v{NEW_VERSION}
-
-## Map marker payload
-
-Both EdgeTX entry points now encode GPS coordinates as:
-
-```text
-geo:0,0?q=<latitude>,<longitude>
-```
-
-The query-form geographic URI asks compatible mapping applications, including Google Maps, to place a location pin at the scanned coordinates instead of only centering or zooming the map.
-
-## Compatibility
-
-- Color widget: native EdgeTX LVGL QR rendering on EdgeTX 2.11 or later.
-- Black-and-white and grayscale radios: embedded fixed Version 2-L encoder.
-- Renamed and multiple GPS sensors: unchanged `UNIT_GPS` discovery behavior.
-- Six-decimal coordinate precision: unchanged.
-
-The longest possible payload is exactly 32 bytes:
-
-```text
-geo:0,0?q=-90.000000,-180.000000
-```
-
-This exactly matches the monochrome encoder's Version 2-L byte-mode capacity, so no larger QR matrix or additional processing is required.
-
-## Validation
-
-- Exact payload verification for color source, readable distribution, and minified distribution.
-- Independent OpenCV decoding for one-bit and grayscale renderings.
-- Geographic-extrema coverage at the full 32-byte payload limit.
-- Existing responsive-layout, renamed-sensor, multiple-GPS, and Jumper T14 polarity tests.
-
-## Installation
-
-Download `GPSQR-v{NEW_VERSION}-SD-minified.zip`, extract it to the SD-card root, delete stale `main.luac` or `GPSQR.luac` files, and restart the radio.
-
-See [`docs/INSTALLATION.md`](../INSTALLATION.md) for full instructions and [`docs/COMPATIBILITY.md`](../COMPATIBILITY.md) for validation scope.
-"""
-          write(f"docs/releases/v{NEW_VERSION}.md", release_note)
-
-          extreme = "geo:0,0?q=-90.000000,-180.000000"
-          if len(extreme.encode("ascii")) != 32:
-              raise AssertionError("extreme marker payload is not exactly 32 bytes")
-
-          for path in ["src/color/main.lua", "src/monochrome/GPSQR.lua"]:
-              text = read(path)
-              if '"geo:" ..' in text:
-                  raise AssertionError(f"{path}: legacy direct-coordinate payload remains")
-              if "geo:0,0?q=" not in text:
-                  raise AssertionError(f"{path}: marker-compatible payload missing")
-          PY
+        run: python .github/scripts/implement_v10_10_8.py
 
       - name: Remove superseded repository archives
         run: |
@@ -263,7 +61,6 @@ See [`docs/INSTALLATION.md`](../INSTALLATION.md) for full instructions and [`doc
         run: npm run package
 
       - name: Verify generated payloads and archives
-        shell: bash
         run: |
           set -euo pipefail
           grep -F 'geo:0,0?q=' src/color/main.lua
@@ -278,10 +75,10 @@ See [`docs/INSTALLATION.md`](../INSTALLATION.md) for full instructions and [`doc
 
       - name: Commit v10.10.8 implementation
         id: commit
-        shell: bash
         run: |
           set -euo pipefail
           rm .github/workflows/implement-map-marker-v10.10.8.yml
+          rm .github/scripts/implement_v10_10_8.py
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
@@ -294,7 +91,6 @@ See [`docs/INSTALLATION.md`](../INSTALLATION.md) for full instructions and [`doc
         env:
           GH_TOKEN: ${{ github.token }}
           IMPLEMENTATION_SHA: ${{ steps.commit.outputs.sha }}
-        shell: bash
         run: |
           set -euo pipefail
           gh release create v10.10.8 \
@@ -304,21 +100,3 @@ See [`docs/INSTALLATION.md`](../INSTALLATION.md) for full instructions and [`doc
             --target "${IMPLEMENTATION_SHA}" \
             --title "GPS QR v10.10.8" \
             --notes-file docs/releases/v10.10.8.md
-
-      - name: Refresh CI and wiki
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          gh workflow run ci.yml --ref master
-          gh workflow run publish-wiki.yml --ref master
-
-      - name: Record successful implementation and release
-        shell: bash
-        run: |
-          set -euo pipefail
-          printf 'GPS QR v10.10.8 map-marker release completed from %s\n' "${{ steps.commit.outputs.sha }}" > .github/v10.10.8-release-status.txt
-          git add .github/v10.10.8-release-status.txt
-          git commit -m "Record successful v10.10.8 release"
-          git push origin HEAD:master
