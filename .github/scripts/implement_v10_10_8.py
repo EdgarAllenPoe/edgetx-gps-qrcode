@@ -59,6 +59,16 @@ for old, new in {
 }.items():
     repl("tests/test_universal.py", old, new)
 
+# The Lua color harness contains its own exact version and payload assertions.
+# Keep those expectations synchronized with the source modified above.
+repl("tests/color_harness.lua", OLD, NEW, 1)
+repl(
+    "tests/color_harness.lua",
+    'assert(qr.data == "geo:40.712800,-74.006000", "wrong color QR payload")',
+    'assert(qr.data == "geo:0,0?q=40.712800,-74.006000", "wrong color QR payload")',
+    1,
+)
+
 repl(
     "docs/USER_GUIDE.md",
     "geo:<latitude>,<longitude>",
